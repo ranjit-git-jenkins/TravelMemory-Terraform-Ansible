@@ -1,0 +1,4 @@
+aws_region = "ap-south-1"
+admin_cidr = "203.0.113.10/32" # REPLACE with your real public IP /32
+key_name = "REPLACE_EXISTING_EC2_KEY_PAIR"
+instance_type = "t3.small"
