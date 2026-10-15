@@ -1,0 +1,13 @@
+---
+- name: MongoDB private host
+  hosts: db
+  become: true
+  roles:
+    - mongodb
+    - hardening
+- name: TravelMemory web host
+  hosts: web
+  become: true
+  roles:
+    - web
+    - hardening

@@ -1,0 +1,4 @@
+---
+collections:
+  - name: community.mongodb
+  - name: community.general
