@@ -1,0 +1,52 @@
+---
+- name: Install MongoDB prerequisites
+  ansible.builtin.apt:
+    name: [gnupg, curl, ca-certificates, python3-pymongo]
+    update_cache: true
+    state: present
+- name: Install MongoDB signing key
+  ansible.builtin.shell: |
+    set -o pipefail
+    curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg
+  args:
+    executable: /bin/bash
+    creates: /usr/share/keyrings/mongodb-server-7.0.gpg
+- name: Configure MongoDB Ubuntu Jammy repository
+  ansible.builtin.apt_repository:
+    repo: "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"
+    filename: mongodb-org-7.0
+    state: present
+- name: Install MongoDB server
+  ansible.builtin.apt:
+    name: mongodb-org
+    update_cache: true
+    state: present
+- name: Configure MongoDB private IP binding
+  ansible.builtin.lineinfile:
+    path: /etc/mongod.conf
+    regexp: '^  bindIp:'
+    line: "  bindIp: 127.0.0.1,{{ ansible_default_ipv4.address }}"
+  notify: Restart MongoDB
+- name: Start MongoDB
+  ansible.builtin.service:
+    name: mongod
+    state: started
+    enabled: true
+- name: Flush restart before creating users
+  ansible.builtin.meta: flush_handlers
+- name: Create app database user (before enabling authentication)
+  community.mongodb.mongodb_user:
+    database: "{{ mongo_db }}"
+    name: "{{ mongo_app_user }}"
+    password: "{{ mongo_app_password }}"
+    roles: [{db: "{{ mongo_db }}", role: readWrite}]
+    state: present
+  no_log: true
+- name: Enable MongoDB authorization
+  ansible.builtin.blockinfile:
+    path: /etc/mongod.conf
+    marker: '# {mark} MANAGED BY ANSIBLE - SECURITY'
+    block: |
+      security:
+        authorization: enabled
+  notify: Restart MongoDB
