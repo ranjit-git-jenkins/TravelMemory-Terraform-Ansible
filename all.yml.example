@@ -1,0 +1,12 @@
+app_repo: "https://github.com/UnpredictablePrashant/TravelMemory.git"
+app_branch: "main"
+app_root: "/opt/travelmemory"
+app_user: "travelmemory"
+# Check actual TravelMemory repo folder names and npm scripts before running.
+backend_dir: "backend"
+frontend_dir: "frontend"
+backend_port: 5000
+mongo_db: "travelmemory"
+mongo_app_user: "travelmemory_app"
+# Supply secrets securely via Ansible Vault (not in Git).
+mongo_app_password: "REPLACE_WITH_VAULT_SECRET"
