@@ -1,0 +1,16 @@
+[Unit]
+Description=TravelMemory backend
+After=network-online.target
+Wants=network-online.target
+[Service]
+User={{ app_user }}
+WorkingDirectory={{ app_root }}/{{ backend_dir }}
+EnvironmentFile=/etc/travelmemory.env
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+[Install]
+WantedBy=multi-user.target
